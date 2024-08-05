@@ -82,6 +82,10 @@ $include "included/included 2.tex"
 !include`snippetStart="// Start", snippetEnd="// End"` 1.cpp
 ```
 
+```haskell
+!include`snippetStart="-- ~/~ begin <<doc/de/results/03_Implementation.md#show-aln>>[init]", snippetEnd="-- ~/~ end"` included/mytest.hs
+```
+
 ```cpp
 !include`snippetStart="// Start"` 1.cpp
 ```
