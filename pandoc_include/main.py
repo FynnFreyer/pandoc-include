@@ -14,8 +14,8 @@ import lxml.etree as xml
 from natsort import natsorted
 from urllib.parse import urlparse
 
-from .format_heuristics import formatFromPath
-from .config import parseConfig, parseOptions, TEMP_FILE, Env
+from pandoc_include.format_heuristics import formatFromPath
+from pandoc_include.config import parseConfig, parseOptions, TEMP_FILE, Env
 
 
 # Global variables

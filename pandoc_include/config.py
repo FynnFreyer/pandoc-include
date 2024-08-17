@@ -31,8 +31,9 @@ def parseBoolValue(val):
 class Env:
   NotFoundError = False
 
-  def parse():
-      Env.NotFoundError = parseBoolValue(os.environ.get(f"PANDOC_INCLUDE_NOT_FOUND_ERROR", "0"))
+  @classmethod
+  def parse(cls):
+      cls.NotFoundError = parseBoolValue(os.environ.get(f"PANDOC_INCLUDE_NOT_FOUND_ERROR", "0"))
 
 
 def parseConfig(text):
