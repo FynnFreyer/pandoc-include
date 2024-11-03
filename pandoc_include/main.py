@@ -23,7 +23,7 @@ from .config import parseOptions, TEMP_FILE, Env
 options = None
 
 # parse env config
-Env.parse()
+env = Env.parse()
 
 
 # Skip whitespaces until newline
@@ -188,7 +188,7 @@ def action(elem, doc):
         files = findFile(name)
         if len(files) == 0:
             msg = f"Included file not found: {name}"
-            if Env.NotFoundError:
+            if env.not_found:
                 raise IOError(msg)
             else:
                 pf.debug(f"[WARNING] {msg}")
@@ -257,7 +257,7 @@ def action(elem, doc):
                         input_format=fmt,
                         standalone=True,
                         extra_args=pandoc_options,
-                        pandoc_path=Env.PandocBin
+                        pandoc_path=env.pandoc_bin
                     )
 
                     new_metadata = new_doc.get_metadata(builtin=False)
@@ -269,7 +269,7 @@ def action(elem, doc):
                 new_metadata = pf.convert_text(
                     f"---\n{raw}\n---",
                     standalone=True,
-                    pandoc_path=Env.PandocBin
+                    pandoc_path=env.pandoc_bin
                 ).get_metadata(builtin=False)
 
             # Merge metadata
@@ -308,7 +308,7 @@ def action(elem, doc):
         files = findFile(name)
         if len(files) == 0:
             msg = f"Included file not found: {name}"
-            if Env.NotFoundError:
+            if env.not_found:
                 raise IOError(msg)
             else:
                 pf.debug(f"[WARNING] {msg}")

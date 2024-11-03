@@ -13,8 +13,10 @@ from pandoc_include.syntax import IncludeType
 
 # Regex patterns
 RE_IS_INCLUDE_HEADER = r"(\\?(!|\$))include-header"
-RE_IS_INCLUDE_LINE   = r"^(\\?(!|\$))include(-header)?"
-RE_INCLUDE_PATTERN   = r"^(\\?(!|\$))include(-header)?(\`(?P<args>[^\`]+(, ?[^\`]+)*)\`)? ((?P<fname>[^\`\'\"]+)|([\`\'\"])(?P<fnamealt>.+)\9)$"
+RE_IS_INCLUDE_LINE = r"^(\\?(!|\$))include(-header)?"
+RE_INCLUDE_PATTERN = r"^(\\?(!|\$))include(-header)?(\`(?P<args>[^\`]+(, ?[^\`]+)*)\`)? ((?P<fname>[^\`\'\"]+)|([\`\'\"])(?P<fnamealt>.+)\9)$"
+
+env = Env.parse()
 
 
 def extract_info(raw_string: str) -> Tuple[IncludeType, Optional[str], Optional[dict]]:
@@ -73,7 +75,7 @@ def is_include_line(elem: pf.Para) -> Tuple[IncludeType, Optional[str], Optional
         input_format='panflute',
         output_format='markdown_strict',
         standalone=True,
-        pandoc_path=Env.PandocBin
+        pandoc_path=env.pandoc_bin
     )
 
     include_type = IncludeType.INVALID
@@ -95,7 +97,7 @@ def is_code_include(elem: pf.CodeBlock) -> Tuple[IncludeType, Optional[str], Opt
     :return: A triple ``include_type, filename, config``.
     """
     try:
-        new_elem = pf.convert_text(elem.text, pandoc_path=Env.PandocBin)[0]
+        new_elem = pf.convert_text(elem.text, pandoc_path=env.pandoc_bin)[0]
     except:
         return IncludeType.INVALID, None, None
 

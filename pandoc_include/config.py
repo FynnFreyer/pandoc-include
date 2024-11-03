@@ -2,9 +2,10 @@ import re
 import ast
 import os
 import json
+from dataclasses import dataclass
+from typing import Optional
 
 import panflute as pf
-
 
 CONFIG_KEYS = {
     "startLine": int,
@@ -23,20 +24,30 @@ CONFIG_KEYS = {
 # in order to be found by subprocesses
 TEMP_FILE = '.temp.pandoc-include'
 
+
 def parseBoolValue(val):
     # use 1 or 0 (otherwise default to true if not empty)
     return val and val != "0"
 
-# Keys for env config
-class Env:
-    # Throw error when included file not found
-    NotFoundError = False
-    # Pandoc binary for parsing included files
-    PandocBin = None
 
-    def parse():
-        Env.NotFoundError = parseBoolValue(os.environ.get("PANDOC_INCLUDE_NOT_FOUND_ERROR", "0"))
-        Env.PandocBin = os.environ.get("PANDOC_BIN") or None
+@dataclass
+class Env:
+    """Configuration and data that is found in environment variables."""
+
+    not_found: bool = False
+    """Indicates that an included file wasn't found, and an error should be thrown."""
+
+    pandoc_bin: Optional[str] = None
+    """Pandoc binary for parsing included files."""
+
+    def __init__(self):
+        not_found = os.environ.get("PANDOC_INCLUDE_NOT_FOUND_ERROR", "0")
+        self.not_found = parseBoolValue(not_found)
+        self.pandoc_bin = os.environ.get("PANDOC_BIN", None)
+
+    @classmethod
+    def parse(cls):
+        return cls()
 
 
 def parseConfig(text):
@@ -83,6 +94,7 @@ defaultOptions = {
     "rewrite-path": True,
     "pandoc-options": ["--filter=pandoc-include"]
 }
+
 
 def parseOptions(doc):
     if os.path.isfile(TEMP_FILE):
