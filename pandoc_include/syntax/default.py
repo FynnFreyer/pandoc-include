@@ -7,7 +7,7 @@ import re
 
 import panflute as pf
 
-from config import parseConfig, Env
+from pandoc_include.config import parseConfig, Env
 from pandoc_include.syntax import IncludeType
 
 # Regex patterns
