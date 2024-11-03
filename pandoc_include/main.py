@@ -6,7 +6,6 @@ import os
 import json
 import glob
 import re
-import itertools
 from pathlib import Path
 
 import panflute as pf

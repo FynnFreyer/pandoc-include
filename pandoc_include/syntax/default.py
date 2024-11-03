@@ -17,11 +17,7 @@ RE_INCLUDE_PATTERN   = r"^(\\?(!|\$))include(-header)?(\`(?P<args>[^\`]+(, ?[^\`
 
 
 def extract_info(rawString):
-    global options
-
-    includeType = IncludeType.INVALID
     config = {}
-    filename = None
 
     # wildcards '*' are escaped which needs to be undone because of path globing
     # convert_text has a tendency to produce multiline text which can not be matched correctly
