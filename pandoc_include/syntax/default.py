@@ -61,12 +61,13 @@ def extract_info(raw_string: str) -> Tuple[IncludeType, Optional[str], Optional[
     return include_type, filename, config
 
 
-def is_include_line(elem: pf.Para) -> Tuple[IncludeType, Optional[str], Optional[dict]]:
+def is_include_line(elem: pf.Para, doc: Optional[pf.Doc] = None) -> Tuple[IncludeType, Optional[str], Optional[dict]]:
     """
     Determine whether a paragraph is an include, and parse :class:`~pandoc_include.syntax.IncludeType`,
     file name, and transclusion options.
 
     :param elem: The paragraph to inspect.
+    :param doc: The document we're working on.
     :return: A triple ``include_type, filename, config``.
     """
     # Revert to Markdown for regex matching
@@ -88,12 +89,13 @@ def is_include_line(elem: pf.Para) -> Tuple[IncludeType, Optional[str], Optional
     return include_type, name, config
 
 
-def is_code_include(elem: pf.CodeBlock) -> Tuple[IncludeType, Optional[str], Optional[dict]]:
+def is_code_include(elem: pf.CodeBlock, doc: Optional[pf.Doc] = None) -> Tuple[IncludeType, Optional[str], Optional[dict]]:
     """
     Determine whether a code block is a code include, and parse :class:`~pandoc_include.syntax.IncludeType`,
     file name, and transclusion options.
 
     :param elem: The code block to inspect.
+    :param doc: The document we're working on.
     :return: A triple ``include_type, filename, config``.
     """
     try:

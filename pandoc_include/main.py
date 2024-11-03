@@ -180,7 +180,7 @@ def action(elem, doc):
 
     # --- Include statement ---
     if isinstance(elem, pf.Para):
-        includeType, name, config = is_include_line(elem)
+        includeType, name, config = is_include_line(elem, doc)
 
         if includeType == IncludeType.INVALID:
             return
@@ -300,7 +300,7 @@ def action(elem, doc):
 
     # --- Code Blocks ---
     elif isinstance(elem, pf.CodeBlock):
-        includeType, name, config = is_code_include(elem)
+        includeType, name, config = is_code_include(elem, doc)
         if includeType == 0:
             return
 
