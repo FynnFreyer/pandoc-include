@@ -16,23 +16,23 @@ RE_IS_INCLUDE_LINE   = r"^(\\?(!|\$))include(-header)?"
 RE_INCLUDE_PATTERN   = r"^(\\?(!|\$))include(-header)?(\`(?P<args>[^\`]+(, ?[^\`]+)*)\`)? ((?P<fname>[^\`\'\"]+)|([\`\'\"])(?P<fnamealt>.+)\9)$"
 
 
-def extract_info(rawString):
+def extract_info(raw_string):
     config = {}
 
     # wildcards '*' are escaped which needs to be undone because of path globing
     # convert_text has a tendency to produce multiline text which can not be matched correctly
     # Also here we should unescape underscores from markdown_strict.
-    rawString = rawString.replace('\\*', '*').replace('\n', ' ').replace('\\_', '_')
+    raw_string = raw_string.replace('\\*', '*').replace('\n', ' ').replace('\\_', '_')
 
-    if re.match(RE_IS_INCLUDE_HEADER, rawString):
-        includeType = IncludeType.HEADER
+    if re.match(RE_IS_INCLUDE_HEADER, raw_string):
+        include_type = IncludeType.HEADER
     else:
-        includeType = IncludeType.FILE
+        include_type = IncludeType.FILE
 
-    matches = re.match(RE_INCLUDE_PATTERN, rawString)
+    matches = re.match(RE_INCLUDE_PATTERN, raw_string)
     if not matches:
         # Pattern was not able to extract args and file glob... Hence, abort
-        raise ValueError(f"Unable to extract info from include line {rawString}")
+        raise ValueError(f"Unable to extract info from include line {raw_string}")
 
     groups = matches.groupdict()
 
@@ -46,14 +46,14 @@ def extract_info(rawString):
         config = parseConfig(groups['args'])
 
     if not filename:
-        raise ValueError(f"Unable to extract info from include line {rawString}")
+        raise ValueError(f"Unable to extract info from include line {raw_string}")
 
-    return includeType, filename, config
+    return include_type, filename, config
 
 
 def is_include_line(elem):
     # Revert to Markdown for regex matching
-    rawString = pf.convert_text(
+    raw_string = pf.convert_text(
         elem,
         input_format='panflute',
         output_format='markdown_strict',
@@ -61,14 +61,14 @@ def is_include_line(elem):
         pandoc_path=Env.PandocBin
     )
 
-    includeType = IncludeType.INVALID
+    include_type = IncludeType.INVALID
     config = {}
     name = None
 
-    if re.match(RE_IS_INCLUDE_LINE, rawString):
-        includeType, name, config = extract_info(rawString)
+    if re.match(RE_IS_INCLUDE_LINE, raw_string):
+        include_type, name, config = extract_info(raw_string)
 
-    return includeType, name, config
+    return include_type, name, config
 
 
 def is_code_include(elem):
@@ -77,9 +77,9 @@ def is_code_include(elem):
     except:
         return IncludeType.INVALID, None, None
 
-    includeType, name, config = is_include_line(new_elem)
-    if includeType == IncludeType.HEADER:
+    include_type, name, config = is_include_line(new_elem)
+    if include_type == IncludeType.HEADER:
         pf.debug("[WARN] Invalid !include-header in code blocks")
-        includeType = IncludeType.INVALID
+        include_type = IncludeType.INVALID
 
-    return includeType, name, config
+    return include_type, name, config
