@@ -8,6 +8,9 @@ test.pdf: test.md ../pandoc_include/main.py
 entryTest.pdf: entryTest/test.md ../pandoc_include/main.py
 	pandoc $< --filter pandoc-include -o entry-test.pdf
 
+syntax-test.pdf: syntax/test.md ../pandoc_include/main.py
+	pandoc $< --filter pandoc-include -o syntax-test.pdf
+
 .PHONY: debug
 debug:
 	pandoc debug.md -t json | python3 run.py | pandoc -f json -o debug.pdf
