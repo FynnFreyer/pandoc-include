@@ -4,6 +4,7 @@ Implements the default transclusion-syntax.
 ``!include path/to/file.md``
 """
 import re
+from typing import Tuple, Optional
 
 import panflute as pf
 
@@ -16,7 +17,14 @@ RE_IS_INCLUDE_LINE   = r"^(\\?(!|\$))include(-header)?"
 RE_INCLUDE_PATTERN   = r"^(\\?(!|\$))include(-header)?(\`(?P<args>[^\`]+(, ?[^\`]+)*)\`)? ((?P<fname>[^\`\'\"]+)|([\`\'\"])(?P<fnamealt>.+)\9)$"
 
 
-def extract_info(raw_string):
+def extract_info(raw_string: str) -> Tuple[IncludeType, Optional[str], Optional[dict]]:
+    """
+    Determine the :class:`~pandoc_include.syntax.IncludeType`,
+    the name of the file to transclude, and the config options for transclusion.
+
+    :param raw_string: The markdown text, that corresponds to the parsed block.
+    :return: A triple ``include_type, filename, config``.
+    """
     config = {}
 
     # wildcards '*' are escaped which needs to be undone because of path globing
@@ -51,7 +59,14 @@ def extract_info(raw_string):
     return include_type, filename, config
 
 
-def is_include_line(elem):
+def is_include_line(elem: pf.Para) -> Tuple[IncludeType, Optional[str], Optional[dict]]:
+    """
+    Determine whether a paragraph is an include, and parse :class:`~pandoc_include.syntax.IncludeType`,
+    file name, and transclusion options.
+
+    :param elem: The paragraph to inspect.
+    :return: A triple ``include_type, filename, config``.
+    """
     # Revert to Markdown for regex matching
     raw_string = pf.convert_text(
         elem,
@@ -71,7 +86,14 @@ def is_include_line(elem):
     return include_type, name, config
 
 
-def is_code_include(elem):
+def is_code_include(elem: pf.CodeBlock) -> Tuple[IncludeType, Optional[str], Optional[dict]]:
+    """
+    Determine whether a code block is a code include, and parse :class:`~pandoc_include.syntax.IncludeType`,
+    file name, and transclusion options.
+
+    :param elem: The code block to inspect.
+    :return: A triple ``include_type, filename, config``.
+    """
     try:
         new_elem = pf.convert_text(elem.text, pandoc_path=Env.PandocBin)[0]
     except:
