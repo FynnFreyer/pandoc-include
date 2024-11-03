@@ -15,7 +15,8 @@ import lxml.etree as xml
 from natsort import natsorted
 from urllib.parse import urlparse
 
-from .syntax.default import is_include_line, is_code_include, INCLUDE_INVALID
+from .syntax import IncludeType
+from .syntax.default import is_include_line, is_code_include
 from .format_heuristics import formatFromPath
 from .config import parseOptions, TEMP_FILE, Env
 
@@ -182,7 +183,7 @@ def action(elem, doc):
     if isinstance(elem, pf.Para):
         includeType, name, config = is_include_line(elem)
 
-        if includeType == INCLUDE_INVALID:
+        if includeType == IncludeType.INVALID:
             return
 
         files = findFile(name)

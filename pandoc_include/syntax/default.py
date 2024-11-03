@@ -8,22 +8,18 @@ import re
 import panflute as pf
 
 from config import parseConfig, Env
-
-# Global variables
-INCLUDE_INVALID  = 0
-INCLUDE_FILE     = 1
-INCLUDE_HEADER   = 2
+from pandoc_include.syntax import IncludeType
 
 # Regex patterns
-RE_IS_INCLUDE_HEADER  = r"(\\?(!|\$))include-header"
-RE_IS_INCLUDE_LINE    = r"^(\\?(!|\$))include(-header)?"
-RE_INCLUDE_PATTERN    = r"^(\\?(!|\$))include(-header)?(\`(?P<args>[^\`]+(, ?[^\`]+)*)\`)? ((?P<fname>[^\`\'\"]+)|([\`\'\"])(?P<fnamealt>.+)\9)$"
+RE_IS_INCLUDE_HEADER = r"(\\?(!|\$))include-header"
+RE_IS_INCLUDE_LINE   = r"^(\\?(!|\$))include(-header)?"
+RE_INCLUDE_PATTERN   = r"^(\\?(!|\$))include(-header)?(\`(?P<args>[^\`]+(, ?[^\`]+)*)\`)? ((?P<fname>[^\`\'\"]+)|([\`\'\"])(?P<fnamealt>.+)\9)$"
 
 
 def extract_info(rawString):
     global options
 
-    includeType = INCLUDE_INVALID
+    includeType = IncludeType.INVALID
     config = {}
     filename = None
 
@@ -33,9 +29,9 @@ def extract_info(rawString):
     rawString = rawString.replace('\\*', '*').replace('\n', ' ').replace('\\_', '_')
 
     if re.match(RE_IS_INCLUDE_HEADER, rawString):
-        includeType = INCLUDE_HEADER
+        includeType = IncludeType.HEADER
     else:
-        includeType = INCLUDE_FILE
+        includeType = IncludeType.FILE
 
     matches = re.match(RE_INCLUDE_PATTERN, rawString)
     if not matches:
@@ -69,7 +65,7 @@ def is_include_line(elem):
         pandoc_path=Env.PandocBin
     )
 
-    includeType = INCLUDE_INVALID
+    includeType = IncludeType.INVALID
     config = {}
     name = None
 
@@ -83,11 +79,11 @@ def is_code_include(elem):
     try:
         new_elem = pf.convert_text(elem.text, pandoc_path=Env.PandocBin)[0]
     except:
-        return INCLUDE_INVALID, None, None
+        return IncludeType.INVALID, None, None
 
     includeType, name, config = is_include_line(new_elem)
-    if includeType == INCLUDE_HEADER:
+    if includeType == IncludeType.HEADER:
         pf.debug("[WARN] Invalid !include-header in code blocks")
-        includeType = INCLUDE_INVALID
+        includeType = IncludeType.INVALID
 
     return includeType, name, config
