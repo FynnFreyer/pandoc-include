@@ -7,6 +7,7 @@ import json
 import glob
 import re
 from pathlib import Path
+from importlib import import_module
 
 import panflute as pf
 import lxml.etree as xml
@@ -15,7 +16,6 @@ from natsort import natsorted
 from urllib.parse import urlparse
 
 from .syntax import IncludeType
-from .syntax.default import is_include_line, is_code_include
 from .format_heuristics import formatFromPath
 from .config import parseOptions, TEMP_FILE, Env
 
@@ -37,6 +37,7 @@ def skipWhitespaces(content):
         pos += 1
     return pos
 
+
 def removeLeadingWhitespaces(s, num):
     regex = re.compile(r"[^\s]")
     m = regex.search(s)
@@ -47,6 +48,7 @@ def removeLeadingWhitespaces(s, num):
         return s[pos:]
     else:
         return s[min(pos, num):]
+
 
 def dedent(content: str, num):
     lines = content.split("\n")
@@ -62,7 +64,8 @@ def findFile(filename: str):
             if os.path.isabs(resource_path):
                 files += glob.glob(os.path.normpath(os.path.join(resource_path, filename)), recursive=True)
             else:
-                files += glob.glob(os.path.normpath(os.path.join(options['process-path'], resource_path, filename)), recursive=True)
+                files += glob.glob(os.path.normpath(os.path.join(options['process-path'], resource_path, filename)),
+                                   recursive=True)
 
     return files
 
@@ -177,6 +180,14 @@ def action(elem, doc):
     if not entry["entered"]:
         os.chdir(entry["path"])
         entry["entered"] = True
+
+    # choose inclusion syntax
+    syntax_ext = options.get("include-syntax", "default")
+    try:
+        syntax_module = import_module(f".{syntax_ext}", "pandoc_include.syntax")
+        is_include_line, is_code_include = syntax_module.is_include_line, syntax_module.is_code_include
+    except ImportError as e:
+        raise ValueError(f'Unknown syntax extension "{syntax_ext}"') from e
 
     # --- Include statement ---
     if isinstance(elem, pf.Para):
@@ -339,8 +350,8 @@ def action(elem, doc):
         # rewrite relative path
         elem.url = str(
             Path(options["include-entry"]["path"])
-                .joinpath(options["current-path"])
-                .joinpath(url)
+            .joinpath(options["current-path"])
+            .joinpath(url)
         )
 
 

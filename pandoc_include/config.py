@@ -87,6 +87,7 @@ defaultOptions = {
         "path": ".",
         "entered": False
     },
+    "include-syntax": "default",
     "current-path": ".",
     "include-resources": ".",
     "process-path": None,
